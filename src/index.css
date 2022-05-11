@@ -1,0 +1,97 @@
+body{
+    box-sizing: border-box;
+    width: calc(100vw - 100px);
+    height: 200%;
+    margin: auto;
+    /* justify-content: center; */
+    align-items: center;
+    text-align: center;
+    font-family: 'VT323', monospace;
+}
+.root{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    text-align: center;
+}
+header{
+    margin:2rem 0 4rem 0;
+    font-size: 16px;
+}
+nav{
+    width: 60%;
+}
+.nav-area{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.menus{
+    display: flex;
+    justify-content: end;
+    gap:10%;
+}
+.menus li{
+    list-style: none
+}
+a{
+    all: unset;
+}
+.nav-area a:hover{
+    cursor: pointer;
+}
+.container{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+    grid-column-gap: 10px;
+
+}
+.pokemonContainer{
+    /* background:green; */
+    padding:10px;
+    margin:10px;
+    border-radius:15px;
+}
+.pokemonName, .pokemonId, .pokemonType{
+    visibility: hidden;
+}
+.pokemonContainer:hover > *{
+    visibility: visible;
+    
+}
+.backHomeButton{
+    padding:10px 20px;
+    border-radius:20px;
+    border:1px solid black;
+    display: inline-block;
+    cursor: pointer;
+}
+.shapeHighlight{
+    /* display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: start;
+    gap:1%; */
+}
+#shapeViz{
+    position: sticky;
+    top: 0px;
+    z-index: -1;
+    right: 0;
+    outline: 1px solid red;
+}
+.shapevizContent{
+    outline: 1px solid black;
+    width: 100%;
+    height: 100vh;
+}
+.vizContent{
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    flex-direction: column;
+    text-align: start;
+    padding:0 30px;
+}
