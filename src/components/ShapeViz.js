@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import useFetch from "../useFetch";
 import { create } from "d3";
 
-export default function ShapeViz({ currentContent }) {
+export default function ShapeViz({ currentContent,currentShift }) {
   const svgRef = useRef();
   const shapeSprites = [
     "https://archives.bulbagarden.net/media/upload/thumb/1/17/Body01.png/32px-Body01.png",
@@ -27,7 +27,8 @@ export default function ShapeViz({ currentContent }) {
   const [allShapes, setAllShapes] = useState([]);
   const [isLoadingEachData, setLoadingEachData] = useState(true);
   const [isSorting, setSorting] = useState(true);
-  console.log(currentContent)
+  // const [shiftUpCount,setShiftUpCount] = useState(1);
+  console.log(currentContent);
   const getShapes = async () => {
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon-shape/`);
@@ -45,17 +46,19 @@ export default function ShapeViz({ currentContent }) {
           const data = await res.json();
           // console.log(data);
           setShapes((currentList) => {
-            currentList = [...currentList,
-            {
-              name: data.name,
-              count: data.pokemon_species.length,
-              sprite: shapeSprites[index],
-            }]
+            currentList = [
+              ...currentList,
+              {
+                name: data.name,
+                count: data.pokemon_species.length,
+                sprite: shapeSprites[index],
+              },
+            ];
             currentList.sort((a, b) => (a.count < b.count ? 1 : -1));
-            return currentList
+            return currentList;
           });
         });
-        console.log(shapes)
+        console.log(shapes);
         setLoadingEachData(false);
       }
       getShapeCount(data.results);
@@ -66,23 +69,55 @@ export default function ShapeViz({ currentContent }) {
       setError(err.message);
     }
   };
-  
+
   useEffect(() => {
-    console.log(currentContent)
+    console.log(currentContent);
     console.log("before get shapes");
     getShapes();
   }, []);
-  useEffect(()=>{
-    console.log(currentContent)
-    if (currentContent){
-      console.log(d3.select(svgRef.current).selectAll(`.shapes:not(${currentContent})`).transition().attr('opacity',0.4))
+  useEffect(() => {
+    console.log(currentContent);
+    if (currentContent != "noSelection") {
+      d3.select(svgRef.current)
+        .selectAll(".shapes")
+        .transition()
+        .attr("opacity", 1);
+      // d3.select(svgRef.current).selectAll(`.shapes:not(${currentContent})`).transition().attr('opacity',0.4)
+      var notCurrent = d3.select(svgRef.current).selectAll(".shapes").filter(function (d, i) {
+        // console.log(d)
+        return d.name != currentContent;
+      });
+
+      notCurrent.each(function (d, i) {
+        d3.select(this).transition().delay(100).duration(1000).attr("opacity", 0.2);
+      });
+      d3.select(svgRef.current).transition().delay(100).duration(2500).attr("transform",(d,i)=>{
+        return "translate(0,"+currentShift+")"
+      });
+      // if (currentContent == 'humanoid' || currentContent =='wings'|| currentContent =='arms'){
+      //   console.log("shifting")
+      //   d3.select(svgRef.current).transition().delay(100).duration(2500).attr("transform",(d,i)=>{
+      //     // console.log(d,i)
+      //     let shiftY = 200*shiftUpCount
+      //     setShiftUpCount(shiftUpCount+1)
+      //     console.log('new shift count', shiftUpCount)
+      //     return "translate(0,-"+shiftY+")"
+      //   });
+      // }
+      
+
+    } else {
+      d3.select(svgRef.current)
+        .selectAll(".shapes")
+        .transition()
+        .attr("opacity", 1);
     }
-  },[currentContent]);
+  }, [currentContent]);
 
   useEffect(() => {
-    console.log(shapes)
+    console.log(shapes);
     console.log(isLoadingEachData);
-    if (isLoadingEachData == false && shapes.length > 5) {
+    if (isLoadingEachData == false && shapes.length == 14) {
       // const sortedShapes = shapes.sort(
       //   (a, b) => parseFloat(b.count) - parseFloat(a.count)
       // );
@@ -95,18 +130,17 @@ export default function ShapeViz({ currentContent }) {
           return acc;
         }, [])
       );
-      setSorting(false)
-
+      setSorting(false);
     }
   }, [isLoadingEachData, shapes]);
   useEffect(() => {
     console.log("making svg");
     console.log(allShapes);
     // console.log(totalShapes)
-    const w = 600;
+    const w = 1000;
     const h = 4000;
     const numRows = 50;
-    const numCols = 15;
+    const numCols = 25;
     //padding for the grid
     var xPadding = 10;
     var yPadding = 15;
@@ -120,9 +154,12 @@ export default function ShapeViz({ currentContent }) {
       .attr("height", h)
       // .style("background-color", "fcfcfc")
       .attr("fill", "orange")
-      .style("float","right")
-    ;
-    const tooldiv = d3.select('#shapeViz').append('div').style('visibility','hidden').style('position','absolute');
+      .style("float", "right");
+    const tooldiv = d3
+      .select("#shapeViz")
+      .append("div")
+      .style("visibility", "hidden")
+      .style("position", "absolute");
     svg
       .selectAll(".shapes")
       .data(allShapes)
@@ -143,20 +180,26 @@ export default function ShapeViz({ currentContent }) {
           ")"
         );
       })
-      .on('mouseover',(e,d)=>{
+      .on("mouseover", (e, d) => {
         // console.log(e,d)
-        tooldiv.style('visibility','visible').text(`${d.name}`).style('color','red').attr('font-weight','bolder')
+        tooldiv
+          .style("visibility", "visible")
+          .text(`${d.name}`)
+          .style("color", "red")
+          .attr("font-weight", "bolder");
       })
-      .on('mousemove',(e,d)=>{
-        tooldiv.style("top", (e.pageY-10)+"px").style("left",(e.pageX+10)+"px");
+      .on("mousemove", (e, d) => {
+        tooldiv
+          .style("top", e.pageY - 10 + "px")
+          .style("left", e.pageX + 10 + "px");
       })
-      .on('mouseout',(e,d)=>{
-        tooldiv.style('visibility','hidden')
+      .on("mouseout", (e, d) => {
+        tooldiv.style("visibility", "hidden");
       })
       .append("svg:image")
       .attr("width", 28)
       .attr("height", 28)
-      .attr("opacity",1)
+      .attr("opacity", 1)
       .attr("xlink:href", function (d) {
         return d.sprite;
       });

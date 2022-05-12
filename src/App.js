@@ -13,9 +13,9 @@ function App() {
         <Navbar></Navbar>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/history" element={<History />} />
+          {/* <Route path="/history" element={<History />} /> */}
           <Route path="/insights" element={<Insights />} />
-          <Route path="/gan-pokemon" />
+          {/* <Route path="/gan-pokemon" /> */}
           <Route path="*"element={<NotFound/>} />
         </Routes>
       </Router>
